@@ -25,7 +25,7 @@ The initial implementation of WebAssembly support in browsers was based on the f
 ## Directly show
 
 #### wasm in V8
-![wasm in V8](.res/WebAssembly_compile.png)
+![wasm in V8](https://github.com/maomao9003/wasm-note/raw/master/.res/WebAssembly_compile.png)
 #### code
 * C++ (.cpp)
     ``` c++
@@ -129,14 +129,14 @@ Current Supported:
     * html5.h
     * OpenGL and EGL
 * multi-threaded execution with shared memory<sup>[[6]]</sup>
-    ![multi-thread](.res/WebAssembly_multi-thread.png)
+    ![multi-thread](https://github.com/maomao9003/wasm-note/raw/master/.res/WebAssembly_multi-thread.png)
 * File System<sup>[[7]]</sup>  
     ![File System](http://kripken.github.io/emscripten-site/_images/FileSystemArchitecture.png)
 
 Furture support(post-MVP)<sup>[[8]]</sup>:
 * Exception handling
 * GC - Directly calling DOM & WEB APIs
-    ![dom operation](.res/WebAssembly_dom_operation.png)
+    ![dom operation](https://github.com/maomao9003/wasm-note/raw/master/.res/WebAssembly_dom_operation.png)
 * dynamic linking
 * SIMD
 * etc.
