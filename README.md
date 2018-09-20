@@ -14,13 +14,14 @@ WebAssembly (abbreviated Wasm) is a binary instruction format for a stack-based 
 
 Vendor-specific precursor technologies are Google Native Client (NaCl) and asm.js.  
 The initial implementation of WebAssembly support in browsers was based on the feature set of asm.js.  
-|||
-|-|-|
-|2015.6.17|First announced.|
-|2016.3.15|Demonstrated executing Unity's Angry Bots in Firefox, Chromium, Google Chrome, and Microsoft Edge.|
-|2017.3|The design of the minimum viable product(MVP) was declared to be finished and the preview phase ended.|
-|2017.9|Safari 11 was released with support.|
-|2018.2|The WebAssembly Working Group published three public working drafts for the Core Specification, JavaScript Interface, and Web API.<sup>[[4]]</sup>|
+
+Date|Event
+------------ | -------------
+2015.6.17|First announced.
+2016.3.15|Demonstrated executing Unity's Angry Bots in Firefox, Chromium, Google Chrome, and Microsoft Edge.
+2017.3|The design of the minimum viable product(MVP) was declared to be finished and the preview phase ended.
+2017.9|Safari 11 was released with support.
+2018.2|The WebAssembly Working Group published three public working drafts for the Core Specification, JavaScript Interface, and Web API.<sup>[[4]]</sup>
 
 ## Directly show
 
