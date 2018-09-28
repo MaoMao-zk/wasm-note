@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en-us">
+
+<head>
+  <title>WebAssembly Test</title>
+</head>
+
+<body>
+
+  <div style = "display:flex; flex-direction:row">
+    <textarea id="output" rows="20" style="width:400px"></textarea>
+    <div style = "display:flex; flex-direction: column;">
+      <span>
+        <button id=f1>Normal Call</button>
+      </span>
+      <span>
+        <button id=f2>int_sqrt</button> <input id=i2 type="number" value="100" style="width: 60px">
+      </span>
+      <span>
+        <button id=f3>float_sqrt</button> <input id=i3 type="number" value="100.8" style="width: 60px">
+      </span>
+      <span>
+        <button id=f4>str_reserve</button> <input id=i4 type="text" value="abcdefg" style="width: 60px">
+      </span>
+      <span>
+        <a id=r5 style="font-size: 12px;">Stoped.</a><button id=f5>start</button> <button id=f5_lock>lock</button>
+      </span>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="test.js"></script>
+  <!--注释
+      -->
+</body>
+
+</html>
