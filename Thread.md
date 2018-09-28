@@ -5,7 +5,7 @@ Current wasm support pthread based on __Web Worker & SharedArryBuffer__.
 
 So multi-thread in wasm has __same limit with Web Worker__, and __need Web Engine support SharedArryBuffer__.
 
-----------------------
+![multi-thread](https://github.com/maomao9003/wasm-note/raw/master/.res/WebAssembly_multi-thread.png)
 
 Chrome & Chromium support WebAssembly Thread in M69:
 
@@ -30,11 +30,11 @@ Detail infomation and limitation: http://kripken.github.io/emscripten-site/docs/
 
 Sample:
 
-http://109.123.100.193:8080/WebAssembly/hello/test.js # 5. Thread
+https://raw.githubusercontent.com/maomao9003/wasm-note/master/SimpleSample/test.js # 5. Thread
 
-http://109.123.100.193:8080/WebAssembly/hello/thread.cc
+https://raw.githubusercontent.com/maomao9003/wasm-note/master/SimpleSample/thread.cc
 
-http://109.123.100.193:8080/WebAssembly/hello/hello.cc
+https://raw.githubusercontent.com/maomao9003/wasm-note/master/SimpleSample/hello.cc
 
 
 
