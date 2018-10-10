@@ -2,6 +2,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <time.h>
+#include <unistd.h>
 
 bool running = false;
 pthread_t thread_id = 0;
@@ -15,14 +16,14 @@ void* thread_process(void*)
     running = true;
     printf("thread started.\n");
 
-    start = clock();
     clock_t current;
 
     while(running)
     {
         pthread_mutex_lock(&mutex);
-        current = clock();
-        running_time = (current - start) / (CLOCKS_PER_SEC/1000);
+        start = clock();
+        usleep(1000);
+        running_time += (clock() - start) / (CLOCKS_PER_SEC/1000);
         pthread_mutex_unlock(&mutex);
     }
 
