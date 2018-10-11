@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en-us">
+
+<head>
+  <title>WebAssembly Embind Test</title>
+</head>
+
+<body>
+
+  <div style = "display:flex; flex-direction:row">
+    <textarea id="output" rows="20" style="width:500px"></textarea>
+    <div style = "display:flex; flex-direction: column; justify-content:space-between;">
+      <span>
+        <button id=f1>Normal Function</button>
+      </span>
+      <span>
+        <button id=f31>Class construct</button> <button id=f32>Class destruct</button> 
+      </span>
+      <span>
+        Class Add: <input id=i21 type="number" value="100" style="width: 60px"> + <input id=i22 type="number" value="100" style="width: 60px"> = <p id="p2" style="display:inline"></p>
+      </span>
+      <div style = "display:flex; flex-direction: column; justify-content:space-between;">
+        Class Object Property:
+        <span>
+          Name: <input id=i41 style="width: 60px"> Age: <input id=i42 type="number" style="width: 60px">
+        </span>
+        <span>
+          <button id=f41>Set person info</button> <button id=f42>Get person  info</button> 
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="Embind.js"></script>
+  <!--注释
+      -->
+</body>
+
+</html>
