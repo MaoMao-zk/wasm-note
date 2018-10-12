@@ -8,14 +8,15 @@ Here only some easy usage. Detail in http://kripken.github.io/emscripten-site/do
     - [Using ccall or cwrap](#1-1).
     - [Using direct function calls (faster but more complicated)](#1-2).
 - Call compiled C++ classes from JavaScript using bindings created with:
-    - *Embind or WebIDL-Binder[TODO]*
+    - [Embind](#2-1).
+    - [WebIDL-Binder](#2-2).
 - Call JavaScript functions from C/C++:
     - [Using emscripten_run_script()](#3-1).
     - [Using EM_JS() (faster)](#3-2).
     - [Using EM_ASM() (faster)](#3-3).
     - [Using a C API implemented in JavaScript](#3-4).
     - *As function pointers from C.[TODO]*
-    - *Using the Embind val class.[TODO]*
+    - [Using the Embind val class](#3-6).
 - *Access compiled code memory from JavaScript.[TODO]*
 - *Affect execution behaviour.[TODO]*
 - *Access environment variables.[TODO]*
@@ -69,6 +70,172 @@ int_sqrt = Module.cwrap('int_sqrt', 'number', ['number'])
 int_sqrt(12)
 int_sqrt(28)
 ```
+
+## Call compiled C++ classes from JavaScript using bindings created with Embind and WebIDL-Binder
+
+JavaScript can call C++ interface using Embind and WebIDL-Binder. Detail can reference [Embind](http://kripken.github.io/emscripten-site/docs/porting/connecting_cpp_and_javascript/embind.html#embind) and [WebIDL-Binder](http://kripken.github.io/emscripten-site/docs/porting/connecting_cpp_and_javascript/WebIDL-Binder.html#webidl-binder);  
+Here is a simple introduction:  
+
+<h3 id="2-1"> Embind </h3>
+
+Embind provide a easy way to support JS calling C++ interface, and has support for binding most C++ constructs, including those introduced in C++11 and C++14.  
+
+**How to use**:  
+* include "emscripten/bind.h" header file
+* use EMSCRIPTEN_BINDINGS block for export Class, Object, Function, Enum and etc.
+* build with bind option:
+    >emcc --bind -o quick_example.js quick_example.cpp
+* Module.xxx in JS can be used directly
+
+Firstly, let'e see **C++ side**:
+``` C++
+#include <emscripten/bind.h>
+
+using namespace emscripten;
+
+void normal_function();
+
+struct PersonRecord {
+    std::string name;
+    int age;
+};
+
+class Class
+{
+public:
+    Class();
+    ~Class();
+    int Add(int a, int b);
+
+    PersonRecord person;
+};
+
+EMSCRIPTEN_BINDINGS(my_module)
+{
+    function("normal_function", &normal_function);
+
+    value_object<PersonRecord>("PersonRecord")
+        .field("name", &PersonRecord::name)
+        .field("age", &PersonRecord::age)
+        ;
+
+    class_<Class>("Class")
+        .constructor<>()
+        .function("Add", &Class::Add)
+        .property("person", &Class::person)
+        // TODO: setter & getter not works
+        //.property("person", &Class::GetPerson, &Class::SetPerson)
+        ;
+}
+```
+In EMSCRIPTEN_BINDINGS block, we can use ***function()*** expose a function, use ***class_<>()*** expose a class, use ***value_object<>()*** expose a strcut as a object in JS, and others. Detail can reference [bind.h](http://kripken.github.io/emscripten-site/docs/api_reference/bind.h.html).  
+
+When export class, can use ***.constructor***, ***.function***, ***.property*** and others.   
+**property** has mutlti usage, above sample shows expose a public variables ***person*** directly. There is an other way through setter and getter function likes _".property("person", &Class::GetPerson, &Class::SetPerson)"_, but there will be build error, need further check.
+
+Then, the **JS side**:
+``` JS
+Module.normal_function();
+
+var class_instance = new Module.Class();
+
+var c = class_instance.Add(a, b);
+
+class_instance.person = {
+    name : document.getElementById('i41').value,
+    age : parseInt(document.getElementById('i42').value)
+}
+console.log(`Get person info: name[${class_instance.person.name}] age[${class_instance.person.age}]`);
+
+class_instance.delete(); 
+```
+Very easy to use, especially object.  
+Only thing you need to take care, need call ***delete*** to free the C++ instance.
+
+There are many other usage: Embind, likes enum, const, smart pointer, even deriving C++ class in JS. You can learn for it in [Emscripten websit](http://kripken.github.io/emscripten-site/docs/porting/connecting_cpp_and_javascript/embind.html#embind).
+
+<h3 id="2-2"> WebIDL-Binder</h3>
+
+WebIDL Binder provide a diffrent way. You can write a WebIDL file, and use WebIDL Binder tool generate glue code of C++ and JS.  
+
+**How to use**:
+* Write a WebIDL file. (WebIDL is a kind interface describtion file, and it's in W3C standard. https://www.w3.org/TR/WebIDL/)
+  ``` java
+    interface PersonRecord {
+        attribute  DOMString name;
+        attribute  long age;
+    };
+
+    interface Class {
+        void Class();
+        long Add(long a, long b);
+        attribute PersonRecord person;
+    };
+  ```
+* generate glue code(will generate glue.cpp and glue.js)
+  ``` shell
+  python $(EMSDK)/emscripten/incoming/tools/webidl_binder.py WebIDL.idl glue
+  ```
+* Write(maybe can generate?) a header file
+  ``` C++
+    struct PersonRecord {
+        char* name;
+        int age;
+    };
+
+    class Class
+    {
+    public:
+        Class();
+        ~Class();
+        int Add(int a, int b);
+
+        PersonRecord* person;
+    };
+
+  ```
+* Realize interface(include header file first, then include glue cpp file)
+  ```C++
+    #include "WebIDL.h"
+    #include "glue.cpp"
+
+    Class::Class()
+    {
+        person = nullptr;
+    }
+
+    Class::~Class()
+    {
+    }
+
+    int Class::Add(int a, int b)
+    {
+        return a+b;
+    }
+  ```
+* Build with post-js option
+  ``` shell
+  emcc WebIDL.cc --post-js glue.js 
+  ```
+* Module.xxx in JS can be used directly
+  ``` JS
+    var class_instance = new Module.Class();
+
+    var c = class_instance.Add(a, b);
+
+    class_instance.person = {
+        name : document.getElementById('i41').value,
+        age : parseInt(document.getElementById('i42').value)
+    }
+    console.log(`Get person info: name[${class_instance.person.name}] age[${class_instance.person.age}]`);
+
+    Module.destroy(class_instance);
+  ```
+
+Diffrence with Embind:
+* WebIDL-Binder only support a sub-set of C++ that can be expressed in WebIDL
+* [Diriving C++ base class in JS is more simple](http://kripken.github.io/emscripten-site/docs/porting/connecting_cpp_and_javascript/WebIDL-Binder.html#sub-classing-c-base-classes-in-javascript-jsimplementation)
+* free C++ instance is diff, need calling _Module.destroy(obj)_ and frop all references to the object
 
 ## Call JavaScript functions from C/C++
 <h3 id="3-1"> Using emscripten_run_script() </h3>
@@ -129,3 +296,28 @@ When compile C/C++ code, use emcc option **--js-library** specify your own js li
 
 There are some limits in library files, see [detail](http://kripken.github.io/emscripten-site/docs/porting/connecting_cpp_and_javascript/Interacting-with-code.html#javascript-limits-in-library-files).
 
+<h3 id="3-6"> Using the Embind val class </h3>
+
+Here is a very simple example to call JS function through Embin val class. Detail in [Emscripten site](http://kripken.github.io/emscripten-site/docs/porting/connecting_cpp_and_javascript/embind.html#using-val-to-transliterate-javascript-to-c).
+
+* define a global object in JS
+    ``` JS
+    var output = {
+        add_log: function(s) {
+            element.value += s;
+            element.value += '\n';
+        }
+    }
+    ```
+* C++
+  * include _emscripten/val.h_
+  * get object reference _val::global("output")_ (use .new_() if you want to create a instance)
+  * calling function _output.call<void>("add_log", s);_
+  ``` C++
+  #include <emscripten/val.h>
+
+  using namespace emscripten;
+
+  val output = val::global("output");//.new_();
+  output.call<void>("add_log", s);
+  ```
