@@ -1,0 +1,11 @@
+
+interface PersonRecord {
+    attribute  DOMString name;
+    attribute  long age;
+};
+
+interface Class {
+    void Class();
+    long Add(long a, long b);
+    attribute PersonRecord person;
+};
