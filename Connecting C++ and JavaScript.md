@@ -26,15 +26,15 @@ Here only some easy usage. Detail in http://kripken.github.io/emscripten-site/do
 Simple sample to declare int_sqrt:
 
 ``` C++
-#include <math.h>
+    #include <math.h>
 
-extern "C" {
+    extern "C" {
 
-int int_sqrt(int x) {
-  return sqrt(x);
-}
+    int int_sqrt(int x) {
+    return sqrt(x);
+    }
 
-}
+    }
 ```
 
 When use emcc/em++ compile code, should add **-s EXPORTED_FUNCTIONS='["_int_sqrt"]'** to export int_sqrt.
@@ -55,20 +55,20 @@ To use ccall/cwrap, should add **-s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "c
 ccall() calls a compiled C function with specified parameters and returns the result.  
 
 ``` JS
-// Call C from JavaScript
-var result = Module.ccall( 'int_sqrt',  // name of C function
-                           'number',    // return type
-                           ['number'],  // argument types
-                           [28]);       // arguments
+    // Call C from JavaScript
+    var result = Module.ccall( 'int_sqrt',  // name of C function
+                            'number',    // return type
+                            ['number'],  // argument types
+                            [28]);       // arguments
 
-// result is 5
+    // result is 5
 ```
 while cwrap() “wraps” a compiled C function and returns a JavaScript function you can call normally. cwrap() is therefore more useful if you plan to call a compiled function a number of times.
 
 ``` JS
-int_sqrt = Module.cwrap('int_sqrt', 'number', ['number'])
-int_sqrt(12)
-int_sqrt(28)
+    int_sqrt = Module.cwrap('int_sqrt', 'number', ['number'])
+    int_sqrt(12)
+    int_sqrt(28)
 ```
 
 ## Call compiled C++ classes from JavaScript using bindings created with Embind and WebIDL-Binder
@@ -89,44 +89,44 @@ Embind provide a easy way to support JS calling C++ interface, and has support f
 
 Firstly, let'e see **C++ side**:
 ``` C++
-#include <emscripten/bind.h>
+    #include <emscripten/bind.h>
 
-using namespace emscripten;
+    using namespace emscripten;
 
-void normal_function();
+    void normal_function();
 
-struct PersonRecord {
-    std::string name;
-    int age;
-};
+    struct PersonRecord {
+        std::string name;
+        int age;
+    };
 
-class Class
-{
-public:
-    Class();
-    ~Class();
-    int Add(int a, int b);
+    class Class
+    {
+    public:
+        Class();
+        ~Class();
+        int Add(int a, int b);
 
-    PersonRecord person;
-};
+        PersonRecord person;
+    };
 
-EMSCRIPTEN_BINDINGS(my_module)
-{
-    function("normal_function", &normal_function);
+    EMSCRIPTEN_BINDINGS(my_module)
+    {
+        function("normal_function", &normal_function);
 
-    value_object<PersonRecord>("PersonRecord")
-        .field("name", &PersonRecord::name)
-        .field("age", &PersonRecord::age)
-        ;
+        value_object<PersonRecord>("PersonRecord")
+            .field("name", &PersonRecord::name)
+            .field("age", &PersonRecord::age)
+            ;
 
-    class_<Class>("Class")
-        .constructor<>()
-        .function("Add", &Class::Add)
-        .property("person", &Class::person)
-        // TODO: setter & getter not works
-        //.property("person", &Class::GetPerson, &Class::SetPerson)
-        ;
-}
+        class_<Class>("Class")
+            .constructor<>()
+            .function("Add", &Class::Add)
+            .property("person", &Class::person)
+            // TODO: setter & getter not works
+            //.property("person", &Class::GetPerson, &Class::SetPerson)
+            ;
+    }
 ```
 In EMSCRIPTEN_BINDINGS block, we can use ***function()*** expose a function, use ***class_<>()*** expose a class, use ***value_object<>()*** expose a strcut as a object in JS, and others. Detail can reference [bind.h](http://kripken.github.io/emscripten-site/docs/api_reference/bind.h.html).  
 
@@ -135,19 +135,19 @@ When export class, can use ***.constructor***, ***.function***, ***.property*** 
 
 Then, the **JS side**:
 ``` JS
-Module.normal_function();
+    Module.normal_function();
 
-var class_instance = new Module.Class();
+    var class_instance = new Module.Class();
 
-var c = class_instance.Add(a, b);
+    var c = class_instance.Add(a, b);
 
-class_instance.person = {
-    name : document.getElementById('i41').value,
-    age : parseInt(document.getElementById('i42').value)
-}
-console.log(`Get person info: name[${class_instance.person.name}] age[${class_instance.person.age}]`);
+    class_instance.person = {
+        name : document.getElementById('i41').value,
+        age : parseInt(document.getElementById('i42').value)
+    }
+    console.log(`Get person info: name[${class_instance.person.name}] age[${class_instance.person.age}]`);
 
-class_instance.delete(); 
+    class_instance.delete(); 
 ```
 Very easy to use, especially object.  
 Only thing you need to take care, need call ***delete*** to free the C++ instance.
@@ -243,7 +243,7 @@ Diffrence with Embind:
 **emscripten_run_script()** is same with **eval()**. Transfer JS Code through param:  
 
 ``` C++
-emscripten_run_script("add_log('emscripten_run_script calling;');");
+    emscripten_run_script("add_log('emscripten_run_script calling;');");
 ```
 
 <h3 id="3-2"> Using EM_JS() </h3>
@@ -251,11 +251,11 @@ emscripten_run_script("add_log('emscripten_run_script calling;');");
 EM_JS is used to declare JavaScript functions from inside a C file.
 
 ``` C++
-EM_JS(void, em_add_log, (const char* s), {
-    add_log(Pointer_stringify(s));
-});
-----------------------------------------------------
-em_add_log("EM_JS calling;");
+    EM_JS(void, em_add_log, (const char* s), {
+        add_log(Pointer_stringify(s));
+    });
+    ----------------------------------------------------
+    em_add_log("EM_JS calling;");
 ```
 
 <h3 id="3-3"> Using EM_ASM() </h3>
@@ -263,8 +263,8 @@ em_add_log("EM_JS calling;");
 EM_ASM is used in a similar manner to inline assembly code.
 
 ```C++
-EM_ASM(
-    add_log("EM_ASM calling;"););
+    EM_ASM(
+        add_log("EM_ASM calling;"););
 ```
 
 There are **EM_ASM_XXX** MACRO can be used transfer params, detail in ref: [em_asm.h included in <emscripten.h>](https://github.com/kripken/emscripten/blob/incoming/system/include/emscripten/em_asm.h)
@@ -275,22 +275,22 @@ It is possible to implement a C API in JavaScript! This is the approach used in 
 
 In C/C++ code, decorating with extern to mark the methods:  
 ``` C++
-extern "C" {
+    extern "C" {
 
-extern void extern_log(const char* );
+    extern void extern_log(const char* );
 
-}
+    }
 ```
 
 Implement extern_log in [library.js](https://github.com/kripken/emscripten/blob/master/src/library.js), or implement in your own js library file as below:  
 ``` JS
-mergeInto(LibraryManager.library, {
-    extern_log: function (s) {
-        var element = document.getElementById('output');
-        element.value += Pointer_stringify(s);
-        element.value += '\n';
-    },
-  });
+    mergeInto(LibraryManager.library, {
+        extern_log: function (s) {
+            var element = document.getElementById('output');
+            element.value += Pointer_stringify(s);
+            element.value += '\n';
+        },
+    });
 ```
 When compile C/C++ code, use emcc option **--js-library** specify your own js library.  
 
@@ -302,22 +302,22 @@ Here is a very simple example to call JS function through Embin val class. Detai
 
 * define a global object in JS
     ``` JS
-    var output = {
-        add_log: function(s) {
-            element.value += s;
-            element.value += '\n';
+        var output = {
+            add_log: function(s) {
+                element.value += s;
+                element.value += '\n';
+            }
         }
-    }
     ```
 * C++
   * include _emscripten/val.h_
   * get object reference _val::global("output")_ (use .new_() if you want to create a instance)
   * calling function _output.call<void>("add_log", s);_
   ``` C++
-  #include <emscripten/val.h>
+    #include <emscripten/val.h>
 
-  using namespace emscripten;
+    using namespace emscripten;
 
-  val output = val::global("output");//.new_();
-  output.call<void>("add_log", s);
+    val output = val::global("output");//.new_();
+    output.call<void>("add_log", s);
   ```
